@@ -190,3 +190,105 @@ $ docker run -it -p 80:80 -v "$(pwd):/app" -w "/app" mcr.microsoft.com/dotnet/sd
 # the above command tell docker to run the container ASP.NETCore3.1 with **volume** linked from current directory(which run command from)
 # to /app volume in the container making (-w /app  ) current directory to run commands from it and open the bash
 ```
+
+## Building Custom images with Dockerfile
+
+### What is Dockerfile?
+
+Dockerfile is a text file has **instructions** within it, This instructions build in with docker documentation to work with environment variables or **copy source code** into the image and more, **"docker build"** command compile this instructions which create file system layered and then the docker image.
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/dockerfile.png" width="500" hight="500"/>
+</p>
+
+Because the image can be cached to speed up future builds, If you make any changes in this instructions you need to rebuild the image
+
+**Basic Dockerfile instructions/Commands:**
+
+- **FROM**: like dependencies which mean where the image you build on in for example [asp.net](http://asp.net) core image, Node.js as base filesystem and then build your filesystem layered on the image.
+- **MAINTAINER**: Just type your **name** who created and maintain this image
+- **RUN**: the commands to run in this images like npm install, dotnet restore, dotnet run
+- **COPY**: copy source code into the container to be ready for production
+- **ENTRYPOINT**: determine the entry point for this container for example nodejs command
+- **WORKDIR**: define what is the working directory is to know where this container going to run
+- **EXPOSE**: determine the port that the container would then run internally
+- **ENV**: define environment variables in that container like development or production
+- **VOLUME**: define volumes for that container
+
+For example of custom dockerfile for **node.js**
+
+```docker
+FROM node
+MAINTAINER aboelkassem
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY . /var/www   # copy the current folder directory (.) to foler (/var/www)
+WORKDIR /var/www  # make this folder as working directory to run the commands from it
+
+RUN npm install
+
+EXPOSE $PORT
+ENTRYPOINT ["npm","start"]
+```
+
+For example of dockerfile for [asp.net](http://asp.net) core **development** version
+
+```docker
+FROM mcr.microsoft.com/dotnet/sdk:3.1
+
+LABEL author="aboelkassem"
+
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1 # setup dotnet watch (mean if change in the code it restart the kestrel server)
+ENV ASPNETCORE_URLS=http://*:5000 
+
+WORKDIR /app
+
+CMD ["/bin/bash", "-c", "dotnet restore && dotnet watch run"]
+```
+
+For multistage file and **production** version of [asp.net](http://asp.net) core
+
+```docker
+# build the image
+FROM mcr.microsoft.com/dotnet/sdk:3.1 as publish
+WORKDIR /publish
+COPY [projectName].csproj .
+RUN dotnet restore
+COPY . .
+RUN dotnet publish --output ./out
+
+# build to production
+FROM mcr.microsoft.com/dotnet/aspnet:3.1
+LABEL author="aboelkassem"
+WORKDIR /app
+COPY --from=publish /publish/out .
+ENV ASPNETCORE_URLS=http://*:5000 
+ENTRYPOINT ["dotnet", "[projectName].dll"]
+```
+
+You can convert this **Dockerfile** into an image by using **"docker build"** command like the following
+
+```docker
+$ docker build -t <your-Username>/<imageName> .
+
+$ docker build -t aboelkassem/foods:1.0-dev . # this will create the image from default filename: Dockerfile
+$ docker build -t aboelkassem/foods:1.0-prod -f prod.Dockerfile . # this create image from different dockerfile name --filename TheNewDockerFileNmae
+
+$ docker run -d -p 80:5000 -v "$(pwd):/app" aboelkassem/foods:1.0-dev # this will run the image
+```
+
+- **-t** : the tag of image
+- **-d:** the detached mode that don't show logs in CMD or any information just name or simple info
+- **your username:** Your docker hub account ID or username and then give it a name
+- **.** : the build context or the current directory contains the DockerFile to build from
+
+### Publish an image to docker Hub
+
+to publish the Docker hub just like **GitHub**, just push it and commit and it simply push it to docker registry as public repository
+
+```bash
+$ docker login
+$ docker push <your-username>/<imageName>
+```
