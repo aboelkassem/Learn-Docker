@@ -95,7 +95,8 @@ $ docker images              # list your images
 $ docker ps                  # list your running containers
 $ docker ps -a               # list your containers
 $ docker rm [containerId]    # remove the container
-$ docker rmi [imageId]       # remove an Image 
+$ docker rmi [imageId]       # remove an Image
+$ docker exec [containerId] [commands] # allow you to run this commands into running containers
 ```
 
 ## Hooking The Source Code into a Container
