@@ -97,6 +97,7 @@ $ docker ps -a               # list your containers
 $ docker rm [containerId]    # remove the container
 $ docker rmi [imageId]       # remove an Image
 $ docker exec [containerId] [commands] # allow you to run this commands into running containers
+$ docker logs [containerId]  # show the logs of the container
 ```
 
 ## Hooking The Source Code into a Container
@@ -292,4 +293,78 @@ to publish the Docker hub just like **GitHub**, just push it and commit and it s
 ```bash
 $ docker login
 $ docker push <your-username>/<imageName>
+```
+
+## Container Linking and Communicating
+
+When trying to use images and containers, you also need to communicate between containers for example communicate with database server, caching server
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/containers-linking.png" width="500" hight="500"/>
+</p>
+
+**To talk to other containers there are two ways:**
+
+- **Use Legacy Linking** by just container **names** by creating **bridge network,** its a good option for development environment
+- **Add Containers to a Custom Bridge Network** by creating isolated network and only containers in that network communicate with each other, it a good option for multiple containers in production environment
+
+### Legacy Linking
+
+this is very simple technique where you give a container **name** and another container can link to it.
+
+**Steps to link containers**
+
+  1- **Run Container with a Name**
+
+```bash
+$ docker run -d --name <containerName> <image>
+$ docker run -d --name my-postgres postgres
+```
+
+  2- **Link to Running Container by Name**
+
+```bash
+$ docker run -d -p <ex-port>:<in-port> --link <containerNameToLinkWith>:<containerAlais> <yourUsername>/<ImageName> # containerAlais is the alais to used internal for example database connection string
+$ docker run -d -p 5000:5000 --link my-postgres:postgres aboelkassem/listify
+```
+
+  3- **Repeat For Additional Containers**
+
+---
+
+For example for linking ASP.NET Core project container with SQL Server database container
+
+```bash
+$ docker build -t aboelkassem/listify:1.0-dev .
+$ docker run -d --name my-sqlserver -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=yourStrong(!)Password' -p 1433:1433 mcr.microsoft.com/mssql/server:2017-latest
+$ docker run -d -p 5000:5000 --link my-sqlserver:SQLServerDB aboelkassem/listify # SQLServerDB alais will be the hostname/server to be used in ConnectionString
+```
+
+### Container/Bridge Networks
+
+Think of linking a whole bunch of containers in cloud or production environment, that couldn't be by naming them, because any container can talk to other by just name, so the best choice for staging or production environment is to **isolate** these running containers in the same group called **Network or bridge network,** the containers inside this isolated network can automatically communicate with each other by the **name**
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/network.png" width="500" hight="500"/>
+</p>
+
+**Steps to link containers**
+
+1- **Create Custom Bridge Network** by giving it a name and bridge as a driver
+
+ 
+
+```bash
+$ docker network create --driver bridge <networkName>
+$ docker network create --driver bridge iolsated_network
+$ docker network inspect iolsated_network  # list info about this network like containers inside it and more
+$ docker network ls # list all the networks you have, By default, Docker creates three networks
+```
+
+2- **Run Containers in the Network** by specify what isolated network to run in
+
+```bash
+$ docker run -d --net=<networkName> --name <customContainerNameToConnectBy> <imageName>
+$ docker run -d --net=iolsated_network --name mongodb mongo
+$ docker run -d --net=iolsated_network --name nodeapp -p 3000:3000 aboelkassem/node
 ```
