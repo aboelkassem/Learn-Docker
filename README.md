@@ -368,3 +368,107 @@ $ docker run -d --net=<networkName> --name <customContainerNameToConnectBy> <ima
 $ docker run -d --net=iolsated_network --name mongodb mongo
 $ docker run -d --net=iolsated_network --name nodeapp -p 3000:3000 aboelkassem/node
 ```
+
+## Docker Compose
+
+it's a great way to automatically manage the lifecycle of your application in the development environment, Compose is a tool for defining and running multi-container Docker applications.
+
+It very helpful in development environment To manage different containers in the application like
+
+- Start, stop and rebuild services(running containers)
+- View status of running services and see the log output of running services
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-compose-1.png" width="800" hight="500"/>
+</p>
+
+Also you can run **Microservices** like the following diagrams **running 6 services** with docker-compose in any environment production or development, each of them have it's docker configuration. And just build and run this file one time to run all these services at one command
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-compose-2.png" width="700" hight="500"/>
+</p>
+
+**Docker Compose Workflow**
+
+1- **Build** The Services which will create the images
+
+2- **Start** Up Services
+
+3- **Tear Down** Services when you are finished, stop containers or remove them 
+
+### docker-compose.yml File
+
+this file defines all our services like the running web servers, frameworks, databases services and caching services or others.
+
+**Like Dockerfile build process,** Also docker-compose.yml file set the services configuration and then **build** these services to generate **images** that then we can use to create containers
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-compose-yml.png" width="700" hight="500"/>
+</p>
+
+It very good and easy in development environment to just give a **.yml** file just have a few basic commands, you can actually have all the images ready and convert those into running containers
+
+**docker-compose.yml file contains:**
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-compose-yml-1.png" width="400" hight="400"/>
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-compose-yml-2.png" width="400" hight="400"/>
+</p>
+
+**In Services you can define:**
+
+- **Build** Context like the folder can build from and what dockerfile to build that service.
+- **Environment** that running these service, you can easy swap between from development to production
+
+### Docker Compose Commands
+
+For all services in docker-compose.yml file
+
+```bash
+$ docker-compose build          # build the services from .yml file into images
+$ docker-compose images         # list images build using current .yml file
+$ docker-compose up             # start these services up as running containers
+$ docker-compose down           # tear these services down and remove running containers
+$ docker-compose logs           # view the logs
+$ docker-compose ps             # list different containers that running as services
+$ docker-compose stop           # stop all the different services
+$ docker-compose start          # start different services
+$ docker-compose restart        # restarts all the containers of the services
+$ docker-compose rm             # remove all the different services
+$ docker-compose down --rmi all --volumes    # remove all the containers including the images and volumes
+```
+
+For individual service
+
+```bash
+$ docker-compose build <ServiceName>    # build specific service from .yml file into images
+$ docker-compose up --no-deps <ServiceName>  # destory and recreate only this service not all dependenics containers
+```
+
+Example of docker-compose.yml file in [asp.net](http://asp.net) core and sql server
+
+```yaml
+version: '3.9'
+services:
+  
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8000:80"
+        networks:
+            - foods-network
+
+    sqlserver:
+        image: "mcr.microsoft.com/mssql/server:2017-latest"
+        environment:
+            SA_PASSWORD: "123456789"
+            ACCEPT_EULA: "Y"
+        networks:
+            - foods-network
+
+networks:
+    foods-network:
+        driver: bridge
+```
