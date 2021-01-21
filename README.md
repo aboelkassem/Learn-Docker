@@ -472,3 +472,82 @@ networks:
     foods-network:
         driver: bridge
 ```
+
+## Overview of Kubernetes
+
+Docker Compose provides a great way to get multiple container up and running on your machine (**development environment)**, but if we need to move to different environment like staging or production, How do your manage all of these containers in stage or production? Docker compose have **scaling** feature but doesn't support **load balancer** between VMs and this not we need in **production environment**
+
+So we use **Kubernetes** to provide all these features in **production environment** like
+
+- Package up the app, provide a manifest and let it manage and handle everything for us
+- Not worry about the management of containers
+- Eliminate single point of failure and self-heal containers
+- Have a way to scale and load balance containers
+- Update containers without bringing down the application
+- Have networking and persistence storage options
+
+### What is Kubernetes
+
+Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications, we interact with it using [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) to run commands line.
+
+It designed for container and cluster management, and it supported by all major cloud platforms.
+
+It provides a way to define cluster's state using manifest files (yaml)
+
+**Some basic features of Kubernetes**
+
+- Service Discovery and load balancing
+- Secret and Configuration management
+- Automate Rollouts/Rollbacks
+- Horizontal Scaling
+
+- Storage Orchestration
+- Manage workloads
+- Self-healing
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/cluster.png" width="700" hight="500"/>
+</p>
+
+The above diagram shows what **Cluster** means, it the process of nodes management to run containerized applications.
+
+- **Master** who manage all these nodes/children/workers nodes
+- **Node** is like VM has pods inside them
+- **Pod** is a container for containers, put multiple things inside this pod
+
+### Run Kubernetes locally
+
+- From [Docker desktop](https://www.docker.com/products/docker-desktop) from settings>Kubernetes>Enable Kubernetes
+- From [Minikube](https://github.com/kubernetes/minikube) tool
+
+### Basic Kubernetes Concepts
+
+- **Deployment**: the main role of Kubernetes to **describe desired state** where convert services from .yml or .json file in Docker compose file into **Kubernetes deployment** file
+    - Can be used to **replicate** pods or **add** more pods in the node
+    - Support **rolling** update and **rollbacks** which are very important for **versioning** your app
+- **Service**: allow you to abstract pod IP addresses from consumers, you know pods which contains containers may be die if container goes down, So Service handle this.
+    - Load balances between pods
+
+<p align="center" width="100%">
+  <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/service.png" width="700" hight="500"/>
+</p>
+
+### Converting Docker-compose to Kubernetes
+
+you can one of these tools
+
+- [Compose on Kubernetes](https://github.com/docker/compose-on-kubernetes) in docker desktop
+- [Kompose](https://kompose.io/)
+
+Check this [GitHub repo](https://github.com/danwahlin/codewithdandockerservices) for example
+
+### Basic Commands
+
+```bash
+$ kubectl version                                 # get version of kubectl CLI
+$ kubectl get <depyloyments| services| pods>      # get information of deployments or services or pods
+$ kubectl run <giveContainerName> --image=<image> # run container into kubernetes
+$ kubectl apply -f <fileName| foldername>         # apply or run all commands of .yaml file or the whole folder like .k8s into deployment
+$ kubectl delete -f <fileName| folername>         # delete the deployments and clean up everything
+$ kubectl port-forward <nameOfPod> 8080:80        # expose pod port into local machine
+```
