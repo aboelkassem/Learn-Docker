@@ -52,7 +52,7 @@ Docker relies on "**images**" and "**containers**"
   <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-benefit-2.png" width="400" hight="400"/>
 </p>
 
-- **Environment Consistency** like moving your code and development environment by just moving images between different environments like from ****development to staging or production
+- **Environment Consistency** like moving your code and development environment by just moving images between different environments like from development to staging or production
 
 <p align="center" width="100%">
   <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-benefit-3.png" width="400" hight="400"/>
@@ -142,13 +142,13 @@ When you pulled an image have a big size you actually pull much layers **for exa
 $ docker pull nginx
 Using the default tag: latest
 latest: Pulling from library/nginx
-**b8f262c62ec6**: Pull complete
-**e9218e8f93b1**: Pull complete
-**7acba7289aa3**: Pull complete
+b8f262c62ec6: Pull complete
+e9218e8f93b1: Pull complete
+7acba7289aa3: Pull complete
 Digest: sha256:aeded0f2a861747f43a01cf1018cf9efe2bdd02afd57d2b11fcc7fcadc16ccd
 ```
 
-As every image is built on top of Linux kernel, it has some common **dependencies** that can be **reused** by other images. Docker bundles these dependencies in one stack and these stacks are called **layers** which ****Docker caches these intermediate layers to speed up the image building process.
+As every image is built on top of Linux kernel, it has some common **dependencies** that can be **reused** by other images. Docker bundles these dependencies in one stack and these stacks are called **layers** which Docker caches these intermediate layers to speed up the image building process.
 
 <p align="center" width="100%">
   <img src="https://github.com/aboelkassem/Learn-Docker/blob/main/images/docker-layerd-1.png" width="400" hight="400"/>
@@ -216,8 +216,8 @@ $ docker inspect [containerId]             # get the info of the container
 ```bash
 $ docker rm -v [containerId]    # remove the container including it's volumes
 $ docker run -it -p 80:80 -v "$(pwd):/app" -w "/app" mcr.microsoft.com/dotnet/sdk:3.1 /bin/bash
-# the above command tell docker to run the container ASP.NETCore3.1 with **volume** linked from current directory(which run command from)
-# to /app volume in the container making (-w /app  ) current directory to run commands from it and open the bash
+# the above command tell docker to run the container ASP.NETCore3.1 with volume linked from current directory(which run command from)
+# to /app volume in the container making (-w /app) current directory to run commands from it and open the bash
 ```
 
 ## Building Custom images with Dockerfile
